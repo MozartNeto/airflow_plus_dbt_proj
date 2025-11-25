@@ -22,7 +22,7 @@ dag = DAG(
 )
 
 def load_csv_from_url(**context):
-    url = 'https://storageaacountdev1231423.blob.core.windows.net/container-file-storage/customer_transactions.csv'
+    url = 'https://raw.githubusercontent.com/MozartNeto/airflow_plus_dbt_proj/refs/heads/main/data_file/customer_transactions.csv'
     
     print(f"Downloading file from: {url}")
     response = requests.get(url)
