@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: cleaned_customer_transactions
+    description: Cleaned raw customer transactions table coming as-is from postgres database
+    columns:
+      - name: transaction_id
+        description: Unique identifier for each transaction
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Unique identifier for each customer
+      - name: transaction_date
+        description: Date when the transaction occurred
+      - name: product_id
+        description: Unique identifier for each product
+      - name: product_name
+        description: Name of the product
+      - name: quantity
+        description: Number of units sold
+      - name: price
+        description: Price of the product
+      - name: tax
+        description: Tax applied to the transaction
+
+  - name: fact_transaction
+    description: fact table that keeps the transactions the custumers did
+    columns:
+      - name: transaction_id
+        tests:
+          - unique
+          - not_null
+          
+      - name: customer_id
+        tests:
+          - not_null
+
+      - name: transaction_date
+        description: Date when the transaction occurred
+      - name: product_id
+        tests:
+          - not_null
+      - name: quantity
+      - name: price
+      - name: tax
+    
+  - name: dim_product
+    description: product dimension
+    columns:
+      - name: id
+        description: Unique product identifier
+        tests:
+          - unique
+          - not_null
+          
+      - name: product_name
+        description: Name of the product
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fact_transaction')
+              field: id
+
+  - name: dim_date
+    description: dimension table to keep precomputed information about the transaction date such as quarter, day of the week
+    columns:
+      - name: date_key
+      - name: year
+      - name: month
+      - name: day
+      - name: day_of_week
+      - name: quarter
+

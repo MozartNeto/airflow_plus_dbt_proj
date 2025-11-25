@@ -1,0 +1,12 @@
+airflow_plus_dbt_project:
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_POSTGRES_HOST', 'postgres-dw') }}"
+      user: "{{ env_var('DBT_POSTGRES_USER', 'admin') }}"
+      password: "{{ env_var('DBT_POSTGRES_PASSWORD', 'admin') }}"
+      port: "{{ env_var('DBT_POSTGRES_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DBT_POSTGRES_DB', 'warehouse_db') }}"
+      schema: "{{ env_var('DBT_POSTGRES_SCHEMA', 'public') }}"
+      threads: "{{ env_var('DBT_THREADS', '4') | int }}"
+  target: dev

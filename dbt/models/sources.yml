@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: raw_data
+    description: Raw customer transactions table coming as-is from postgres database
+    database: warehouse_db
+    schema: public
+    tables:
+      - name: raw_customer_transactions
+        description: Raw sales transactions
+        columns:
+          - name: transaction_id
+            description: Unique identifier for each transaction
+          - name: customer_id
+            description: Unique identifier for each customer
+          - name: transaction_date
+            description: Date when the transaction occurred
+          - name: product_id
+            description: Unique identifier for each product
+          - name: product_name
+            description: Name of the product
+          - name: quantity
+            description: Number of units sold
+          - name: price
+            description: Price of the product
+          - name: tax
+            description: Tax applied to the transaction
