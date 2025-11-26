@@ -43,7 +43,7 @@ The `load_customer_transactions` DAG implements a simple two-task ELT workflow w
 
 ![Dataflow](./images_documentation/processing-flow.png)
 
-## Dataflow
+## Dataflow and Datamodel
 ![Dataflow](./images_documentation/data-flow.png)
 
 **1. Ingestion (Airflow -> PostgreSQL)**
@@ -55,6 +55,9 @@ The `load_customer_transactions` DAG implements a simple two-task ELT workflow w
 - **Non-compliant records**: routed to `quarantine_customer_transactions` (error handling)
 
 **3. Dimensional Modeling (dbt marts layer)**
+
+![Datamodel](./images_documentation/data-model.png)
+
 - dbt transforms `cleaned_customer_transactions` into a star schema:
   - **`fact_transactions`**: Fact table with transaction information
   - **`dim_date`**: Date dimension for time-based analysis
