@@ -6,22 +6,37 @@ models:
     columns:
       - name: transaction_id
         description: Unique identifier for each transaction
+        data_type: bigint
         tests:
           - unique
           - not_null
+
       - name: customer_id
+        data_type: bigint
         description: Unique identifier for each customer
+
       - name: transaction_date
+        data_type: date
         description: Date when the transaction occurred
+
       - name: product_id
+        data_type: bigint
         description: Unique identifier for each product
+
       - name: product_name
+        data_type: string
         description: Name of the product
+
       - name: quantity
+        data_type: float
         description: Number of units sold
+
       - name: price
+        data_type: float
         description: Price of the product
+
       - name: tax
+        data_type: float
         description: Tax applied to the transaction
 
   - name: fact_transaction

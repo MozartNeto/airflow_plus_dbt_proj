@@ -367,6 +367,8 @@ services:
       POSTGRES_USER: ${POSTGRES_DW_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_DW_PASSWORD:-admin}
       POSTGRES_DB: ${POSTGRES_DW_DB:-warehouse_db}
+    ports:
+      - "5433:5432" 
     volumes:
       - postgres-dw-volume:/var/lib/postgresql/data
     healthcheck:

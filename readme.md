@@ -12,8 +12,10 @@ The Docker Compose environment orchestrates an ELT pipeline using three main com
 A webserver hosts CSV source files externally, accessible via HTTP GET requests. This simulates a typical scenario where raw data is pulled from remote sources.
 
 ```
-In a production deployment this step could replaced by a S3/blob/cloud storage bucket where there are the `pg_dump` of the postgres tables.
-In this case authentication and a private networking channel should be incorporated within the solution.
+In a production deployment this step could replaced by a S3/blob/cloud storage 
+bucket where there are the `pg_dump` of the postgres tables.
+In this case authentication and a private networking channel should be incorporated 
+within the solution.
 ```
 
 ### Core Components (Inside Docker Compose):

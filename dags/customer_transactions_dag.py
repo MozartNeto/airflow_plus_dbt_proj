@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from psycopg2 import sql
 from datetime import datetime
 import pandas as pd
 import requests
@@ -21,46 +22,43 @@ dag = DAG(
     tags=['ingestion', 'dbt', 'customer_transaction_model'],
 )
 
-def load_csv_from_url(**context):
-    url = 'https://raw.githubusercontent.com/MozartNeto/airflow_plus_dbt_proj/refs/heads/main/data_file/customer_transactions.csv'
-    
+def get_csv_content_from_url(url):
     print(f"Downloading file from: {url}")
     response = requests.get(url)
     response.raise_for_status()
     
-    csv_data = StringIO(response.text)
-    df = pd.read_csv(csv_data)
-    df = df.astype(str)
-    
-    print(f"Loaded {len(df)} rows from CSV")
-    hook = PostgresHook(postgres_conn_id='postgres_dw')
-    conn = hook.get_conn()
-    cursor = conn.cursor()
-    columns = df.columns.tolist()
-    
-    column_defs = ', '.join([f'"{col}" TEXT' for col in columns])
-    create_table_sql = f"""
-    DROP TABLE IF EXISTS raw_customer_transactions;
-    CREATE TABLE raw_customer_transactions (
-        {column_defs},
-        ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    """
-    
-    cursor.execute(create_table_sql)
+    return StringIO(response.text)
 
-    placeholders = ', '.join(['%s'] * len(columns))
-    insert_sql = f"""
-    INSERT INTO raw_customer_transactions ({', '.join([f'"{col}"' for col in columns])})
-    VALUES ({placeholders})
-    """
-    
-    for _, row in df.iterrows():
-        cursor.execute(insert_sql, tuple(row))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
+def csv_buffer_to_dataframe(csv_buffer):
+    df = pd.read_csv(csv_buffer)
+    df = df.astype(str)
+    df['processed_at'] = pd.Timestamp.now()
+
+    return df
+
+def get_postgres_connection_uri():
+    hook = PostgresHook(postgres_conn_id='postgres_dw')
+    return hook.get_uri()
+
+def load_pandas_df_to_pg(df, pg_conn_url, table_name, schema, if_exists = "replace"):
+    df.to_sql(
+        name=table_name,
+        con=pg_conn_url, 
+        schema=schema,
+        if_exists=if_exists,
+        index=False,
+        method='multi', 
+        chunksize=10000 
+    )
+
+def load_csv_from_url(**context):
+    url = 'https://raw.githubusercontent.com/MozartNeto/airflow_plus_dbt_proj/refs/heads/main/data_file/customer_transactions.csv'
+     
+    csv_buffer = get_csv_content_from_url(url)
+    df = csv_buffer_to_dataframe(csv_buffer)
+    conn_uri = get_postgres_connection_uri()
+    load_pandas_df_to_pg(df, conn_uri, "raw_customer_transactions", "public")
+
 
 load_data_task = PythonOperator(
     task_id='load_data_from_url',
